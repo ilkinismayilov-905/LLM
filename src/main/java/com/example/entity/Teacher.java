@@ -19,7 +19,7 @@ public class Teacher {
     public Long id;
 
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @NotNull(message = "User cannot be null")
     private User user;
