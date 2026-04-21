@@ -56,15 +56,11 @@ public class SecurityConfig {
                             response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"" + authException.getMessage() + "\"}");
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                            String roles = (auth != null) ? auth.getAuthorities().toString() : "ANONYMOUS";
-
                             response.setContentType("application/json");
                             response.setCharacterEncoding("UTF-8");
                             response.setStatus(403);
                             response.getWriter().write(String.format(
-                                    "{\"error\":\"Forbidden\", \"message\":\"Giriş qadağandır\", \"your_roles\":\"%s\"}",
-                                    roles
+                                    "{\"error\":\"Forbidden\", \"message\":\"Giriş qadağandır\"}"
                             ));
                         }))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -73,16 +69,16 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
-                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/students/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers("/api/v1/teachers/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers("/api/v1/groups/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers("/api/v1/specialties/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers("/api/v1/subjects/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers("/api/v1/grades/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers("/api/v1/teacher-group-subjects/**").hasAnyRole("ADMIN", "TEACHER")
-                        .requestMatchers("/api/v1/attendance/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("SUPER_ADMIN", "TEACHER", "STUDENT")
+                        .requestMatchers("/api/v1/users/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/api/v1/students/**").hasAnyRole("SUPER_ADMIN", "TEACHER")
+                        .requestMatchers("/api/v1/teachers/**").hasAnyRole("SUPER_ADMIN", "TEACHER")
+                        .requestMatchers("/api/v1/groups/**").hasAnyRole("SUPER_ADMIN", "TEACHER")
+                        .requestMatchers("/api/v1/specialties/**").hasAnyRole("SUPER_ADMIN", "TEACHER")
+                        .requestMatchers("/api/v1/subjects/**").hasAnyRole("SUPER_ADMIN", "TEACHER")
+                        .requestMatchers("/api/v1/grades/**").hasAnyRole("SUPER_ADMIN", "TEACHER")
+                        .requestMatchers("/api/v1/teacher-group-subjects/**").hasAnyRole("SUPER_ADMIN", "TEACHER")
+                        .requestMatchers("/api/v1/attendance/**").hasAnyRole("SUPER_ADMIN", "TEACHER", "STUDENT")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

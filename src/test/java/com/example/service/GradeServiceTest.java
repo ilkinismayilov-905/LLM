@@ -68,7 +68,7 @@ class GradeServiceTest {
                 .email("student@school.com")
                 .firstName("John")
                 .lastName("Doe")
-                .role(Role.ROLE_STUDENT)
+                .role(Role.STUDENT)
                 .build();
 
         student = Student.builder()
@@ -88,7 +88,7 @@ class GradeServiceTest {
                 .email("teacher@school.com")
                 .firstName("Jane")
                 .lastName("Smith")
-                .role(Role.ROLE_TEACHER)
+                .role(Role.TEACHER)
                 .build();
 
         teacher = Teacher.builder()

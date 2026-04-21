@@ -97,8 +97,9 @@ public class GradeService {
         grade.setExamScore(request.examScore());
 
         int totalScore = calculateTotalScore(request);
+        int examScore = request.seminarScore();
         grade.setTotalScore(totalScore);
-        grade.setStatus(getGradeStatus(totalScore));
+        grade.setStatus(getGradeStatus(totalScore,examScore));
 
         Grade savedGrade = gradeRepository.save(grade);
         log.info("Grade created successfully with id: {}", savedGrade.getId());
@@ -134,8 +135,9 @@ public class GradeService {
         }
 
         int totalScore = calculateTotalScore(grade);
+        int examScore = request.examScore();
         grade.setTotalScore(totalScore);
-        grade.setStatus(getGradeStatus(totalScore));
+        grade.setStatus(getGradeStatus(totalScore,examScore));
 
         Grade updatedGrade = gradeRepository.save(grade);
         log.info("Grade updated successfully with id: {}", updatedGrade.getId());
@@ -198,10 +200,10 @@ public class GradeService {
         return total;
     }
 
-    private GradeStatus getGradeStatus(int totalScore) {
-        if (totalScore >= 80) return GradeStatus.PASSED;
-        if (totalScore >= 60) return GradeStatus.PASSED;
-        if (totalScore >= 40) return GradeStatus.FAILED_BY_TOTAL;
-        return GradeStatus.FAILED_BY_EXAM;
+    private GradeStatus getGradeStatus(int totalScore,int examScore) {
+        if (totalScore >= 51 && examScore >= 17) return GradeStatus.PASSED;
+        if (totalScore <= 50) return GradeStatus.FAILED_BY_TOTAL;
+        if (examScore <= 17) return GradeStatus.FAILED_BY_EXAM;
+        return GradeStatus.PENDING;
     }
 }

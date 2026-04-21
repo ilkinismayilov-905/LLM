@@ -55,7 +55,7 @@ class StudentServiceTest {
                 .email("student@school.com")
                 .firstName("John")
                 .lastName("Doe")
-                .role(Role.ROLE_STUDENT)
+                .role(Role.STUDENT)
                 .build();
 
         group = Group.builder()

@@ -53,7 +53,7 @@ class UserServiceTest {
                 .password("encodedPassword123")
                 .firstName("John")
                 .lastName("Doe")
-                .role(Role.ROLE_TEACHER)
+                .role(Role.TEACHER)
                 .isActive(true)
                 .build();
 
@@ -162,7 +162,7 @@ class UserServiceTest {
                 .password("encodedPassword123")
                 .firstName("Jane")
                 .lastName("Smith")
-                .role(Role.ROLE_STUDENT)
+                .role(Role.STUDENT)
                 .isActive(true)
                 .build();
 

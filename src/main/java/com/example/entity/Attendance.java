@@ -1,5 +1,6 @@
 package com.example.entity;
 
+import com.example.enums.AttendanceStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -52,8 +53,5 @@ public class Attendance {
         lastModifiedAt = LocalDateTime.now();
     }
 
-    public enum AttendanceStatus {
-        PRESENT, ABSENT, WARNING
-    }
 }
 

@@ -5,6 +5,7 @@ import com.example.dto.request.MarkAttendanceRequest;
 import com.example.dto.response.AttendanceResponse;
 import com.example.dto.response.AttendanceWarningResponse;
 import com.example.entity.*;
+import com.example.enums.AttendanceStatus;
 import com.example.exception.*;
 import com.example.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -100,12 +101,12 @@ public class AttendanceService {
     private Object handleAttendanceUpdate(Attendance attendance, MarkAttendanceRequest request, 
                                          Lesson lesson, LocalDateTime now) {
         
-        Attendance.AttendanceStatus newStatus = mapRequestStatusToEntity(request.status());
-        Attendance.AttendanceStatus currentStatus = attendance.getStatus();
+        AttendanceStatus newStatus = mapRequestStatusToEntity(request.status());
+        AttendanceStatus currentStatus = attendance.getStatus();
 
         // If changing from ABSENT to PRESENT
-        if (currentStatus == Attendance.AttendanceStatus.ABSENT && 
-            newStatus == Attendance.AttendanceStatus.PRESENT) {
+        if (currentStatus == AttendanceStatus.ABSENT &&
+            newStatus == AttendanceStatus.PRESENT) {
             
             // Check if still within first 15 minutes
             if (!lesson.isWithinFirstFifteenMinutes(now)) {
@@ -190,9 +191,9 @@ public class AttendanceService {
         }
     }
 
-    private Attendance.AttendanceStatus mapRequestStatusToEntity(String status) {
+    private AttendanceStatus mapRequestStatusToEntity(String status) {
         try {
-            return Attendance.AttendanceStatus.valueOf(status.toUpperCase());
+            return AttendanceStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new InvalidInputException("Invalid attendance status: " + status);
         }

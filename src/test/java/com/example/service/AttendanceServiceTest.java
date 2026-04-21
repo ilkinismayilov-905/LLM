@@ -5,6 +5,7 @@ import com.example.dto.request.MarkAttendanceRequest;
 import com.example.dto.response.AttendanceResponse;
 import com.example.dto.response.AttendanceWarningResponse;
 import com.example.entity.*;
+import com.example.enums.AttendanceStatus;
 import com.example.enums.Role;
 import com.example.exception.*;
 import com.example.repository.*;
@@ -68,7 +69,7 @@ class AttendanceServiceTest {
                 .password("encoded")
                 .firstName("John")
                 .lastName("Doe")
-                .role(Role.ROLE_TEACHER)
+                .role(Role.TEACHER)
                 .isActive(true)
                 .build();
 
@@ -102,7 +103,7 @@ class AttendanceServiceTest {
                 .password("encoded")
                 .firstName("Jane")
                 .lastName("Smith")
-                .role(Role.ROLE_STUDENT)
+                .role(Role.STUDENT)
                 .isActive(true)
                 .build();
 
@@ -128,7 +129,7 @@ class AttendanceServiceTest {
                 .id(1L)
                 .lesson(lesson)
                 .student(student)
-                .status(Attendance.AttendanceStatus.ABSENT)
+                .status(AttendanceStatus.ABSENT)
                 .markedAt(LocalDateTime.now())
                 .lastModifiedAt(LocalDateTime.now())
                 .build();
@@ -317,7 +318,7 @@ class AttendanceServiceTest {
                 .id(1L)
                 .lesson(ongoingLesson)
                 .student(student)
-                .status(Attendance.AttendanceStatus.ABSENT)
+                .status(AttendanceStatus.ABSENT)
                 .markedAt(LocalDateTime.now())
                 .lastModifiedAt(LocalDateTime.now())
                 .build();
@@ -367,7 +368,7 @@ class AttendanceServiceTest {
                 .id(1L)
                 .lesson(ongoingLesson)
                 .student(student)
-                .status(Attendance.AttendanceStatus.ABSENT)
+                .status(AttendanceStatus.ABSENT)
                 .markedAt(LocalDateTime.now())
                 .lastModifiedAt(LocalDateTime.now())
                 .build();
