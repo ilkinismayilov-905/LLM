@@ -66,12 +66,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // ── Validation ───────────────────────────────────────────────────────────
-
-    /**
-     * ACCESS token-i yoxla.
-     * Refresh token göndərilərsə false qaytarır (signature uyğun gəlməz).
-     */
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
@@ -87,10 +81,6 @@ public class JwtTokenProvider {
         return false;
     }
 
-    /**
-     * REFRESH token-i yoxla.
-     * Access token göndərilərsə false qaytarır (signature uyğun gəlməz).
-     */
     public boolean validateRefreshToken(String token) {
         try {
             Claims claims = Jwts.parser()
@@ -98,7 +88,6 @@ public class JwtTokenProvider {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-            // tokenType claim-i REFRESH olmalıdır
             return REFRESH.equals(claims.get(TOKEN_TYPE_CLAIM, String.class));
         } catch (JwtException ex) {
             log.error("Invalid refresh token: {}", ex.getMessage());
@@ -108,22 +97,14 @@ public class JwtTokenProvider {
         return false;
     }
 
-    // ── Claim extraction ─────────────────────────────────────────────────────
-
-    /** ACCESS token-dən email al */
     public String getEmailFromToken(String token) {
         return parseClaims(token, getAccessSigningKey()).getSubject();
     }
-
-    /** REFRESH token-dən email al */
     public String getEmailFromRefreshToken(String token) {
         return parseClaims(token, getRefreshSigningKey()).getSubject();
     }
 
-    /**
-     * Verilmiş token-in REFRESH token olub-olmadığını yoxla.
-     * Access signing key ilə imzalanmış token-i refresh kimi qəbul etmir.
-     */
+
     public boolean isRefreshToken(String token) {
         try {
             Claims claims = parseClaims(token, getRefreshSigningKey());

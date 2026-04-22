@@ -1,3 +1,4 @@
+
 spring:
   application:
     name: LMS
@@ -19,6 +20,8 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
       max-age: 3600
+  config:
+    import: optional:file:.env[.properties]
 
 # JWT Configuration
 app:

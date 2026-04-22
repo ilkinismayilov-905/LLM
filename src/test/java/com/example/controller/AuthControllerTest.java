@@ -67,6 +67,7 @@ class AuthControllerTest {
 
         loginResponse = new LoginResponse(
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                 "Bearer",
                 userResponse
         );
