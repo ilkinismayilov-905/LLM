@@ -18,70 +18,132 @@ import java.util.Date;
 @Slf4j
 public class JwtTokenProvider {
 
-    @Value("${app.jwt.secret:MySecretKeyForJWTTokenGenerationAndValidationThatIsAtLeast256BitsLongForHS256Algorithm}")
+    private static final String TOKEN_TYPE_CLAIM = "tokenType";
+    private static final String ACCESS  = "ACCESS";
+    private static final String REFRESH = "REFRESH";
+
+    // ── Access token config ──────────────────────────────────────────────────
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration:86400000}")
+    @Value("${app.jwt.expiration:900000}")
     private long jwtExpirationMs;
 
+    // ── Refresh token config ─────────────────────────────────────────────────
+    @Value("${app.jwt.refresh-secret}")
+    private String jwtRefreshSecret;
+
+    @Value("${app.jwt.refresh-expiration:604800000}")
+    private long jwtRefreshExpirationMs;
+
+    // ── Token generation ─────────────────────────────────────────────────────
+
+    /** Authentication obyektindən ACCESS token yarat */
     public String generateToken(Authentication authentication) {
-        log.info("Generating JWT token for user: {}", authentication.getName());
-        
+        log.info("Generating access token for user: {}", authentication.getName());
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
-
-        return Jwts.builder()
-                .subject(userPrincipal.getEmail())
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+        return buildAccessToken(userPrincipal.getEmail());
     }
 
+    /** Email-dən ACCESS token yarat (register üçün) */
     public String generateTokenFromEmail(String email) {
-        log.info("Generating JWT token for email: {}", email);
+        log.info("Generating access token for email: {}", email);
+        return buildAccessToken(email);
+    }
 
+    /** Email-dən REFRESH token yarat — ayrıca refresh signing key ilə */
+    public String generateRefreshToken(String email) {
+        log.info("Generating refresh token for email: {}", email);
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+        Date expiry = new Date(now.getTime() + jwtRefreshExpirationMs);
 
         return Jwts.builder()
                 .subject(email)
+                .claim(TOKEN_TYPE_CLAIM, REFRESH)
                 .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .expiration(expiry)
+                .signWith(getRefreshSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        return claims.getSubject();
     }
 
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(getSigningKey())
+                    .verifyWith(getAccessSigningKey())
                     .build()
                     .parseSignedClaims(token);
             return true;
         } catch (JwtException ex) {
-            log.error("Invalid JWT token: {}", ex.getMessage());
+            log.error("Invalid access token: {}", ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty: {}", ex.getMessage());
+            log.error("Access token claims string is empty: {}", ex.getMessage());
         }
         return false;
     }
 
-    private SecretKey getSigningKey() {
+    public boolean validateRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getRefreshSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return REFRESH.equals(claims.get(TOKEN_TYPE_CLAIM, String.class));
+        } catch (JwtException ex) {
+            log.error("Invalid refresh token: {}", ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            log.error("Refresh token claims string is empty: {}", ex.getMessage());
+        }
+        return false;
+    }
+
+    public String getEmailFromToken(String token) {
+        return parseClaims(token, getAccessSigningKey()).getSubject();
+    }
+    public String getEmailFromRefreshToken(String token) {
+        return parseClaims(token, getRefreshSigningKey()).getSubject();
+    }
+
+
+    public boolean isRefreshToken(String token) {
+        try {
+            Claims claims = parseClaims(token, getRefreshSigningKey());
+            return REFRESH.equals(claims.get(TOKEN_TYPE_CLAIM, String.class));
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────────────
+
+    private String buildAccessToken(String email) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + jwtExpirationMs);
+
+        return Jwts.builder()
+                .subject(email)
+                .claim(TOKEN_TYPE_CLAIM, ACCESS)
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(getAccessSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    private Claims parseClaims(String token, SecretKey key) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    private SecretKey getAccessSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-}
 
+    private SecretKey getRefreshSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtRefreshSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+}

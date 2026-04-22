@@ -25,21 +25,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
 
-            if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
-                String email = jwtTokenProvider.getEmailFromToken(jwt);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            if (StringUtils.hasText(jwt)) {
 
-                UsernamePasswordAuthenticationToken authentication = 
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // Refresh token API endpointlərinə buraxılmır — yalnız /auth/refresh istifadə edə bilər
+                if (jwtTokenProvider.isRefreshToken(jwt)) {
+                    log.warn("Refresh token was used to access a protected resource — rejected");
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write(
+                            "{\"error\":\"Unauthorized\"," +
+                            "\"message\":\"Refresh token cannot be used to access API resources. " +
+                            "Use /api/v1/auth/refresh to obtain a new access token.\"}"
+                    );
+                    return; // filterChain-i dayandır
+                }
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("Set user authentication for email: {}", email);
+                if (jwtTokenProvider.validateToken(jwt)) {
+                    String email = jwtTokenProvider.getEmailFromToken(jwt);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("Set user authentication for email: {}", email);
+                }
             }
         } catch (Exception ex) {
             log.error("Could not set user authentication: {}", ex.getMessage());
@@ -65,4 +86,3 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/actuator/health");
     }
 }
-

@@ -2,7 +2,7 @@ package com.example.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record LoginResponse(
+public record RefreshTokenResponse(
         @JsonProperty("access_token")
         String accessToken,
 
@@ -10,11 +10,9 @@ public record LoginResponse(
         String refreshToken,
 
         @JsonProperty("token_type")
-        String tokenType,
-
-        UserResponse user
+        String tokenType
 ) {
-    public static LoginResponse of(String accessToken, String refreshToken, UserResponse user) {
-        return new LoginResponse(accessToken, refreshToken, "Bearer", user);
+    public static RefreshTokenResponse of(String accessToken, String refreshToken) {
+        return new RefreshTokenResponse(accessToken, refreshToken, "Bearer");
     }
 }

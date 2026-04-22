@@ -1,10 +1,11 @@
+
 spring:
   application:
     name: LMS
   datasource:
-    url: jdbc:mysql://213.199.37.210:3306/llm?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: user
-    password: LlmUser123!
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
@@ -19,12 +20,16 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
       max-age: 3600
+  config:
+    import: optional:file:.env[.properties]
 
 # JWT Configuration
 app:
   jwt:
-    secret: "MySecretKeyForJWTTokenGenerationAndValidationThatIsAtLeast256BitsLongForHS256Algorithm"
-    expiration: 86400000  # 24 hours in milliseconds
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION:900000}
+    refresh-secret: ${JWT_REFRESH_SECRET}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
 # Swagger/SpringDoc Configuration
 springdoc:

@@ -44,8 +44,6 @@ class AttendanceServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    // ...existing code...
-
     @Mock
     private EntityToDtoMapper mapper;
 
