@@ -75,7 +75,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({
             InvalidGradeValueException.class,
-            InvalidInputException.class
+            InvalidInputException.class,
+            InvalidPasswordException.class,
+            InvalidPasswordTokenException.class
     })
     public ResponseEntity<ErrorResponse> handleBadRequest(
             RuntimeException ex,
@@ -137,6 +139,28 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    /**
+     * Handle 500 Internal Server Error for Mailing issues
+     */
+    @ExceptionHandler(EmailSendingException.class)
+    public ResponseEntity<ErrorResponse> handleEmailSendingException(
+            EmailSendingException ex,
+            HttpServletRequest request) {
+
+        log.error("Email service error: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error("Internal Server Error")
+                .message("Failed to send email. Please try again later.") // Təhlükəsizlik üçün daxili xətanı gizlətmək olar
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+
     }
 
     /**

@@ -62,7 +62,7 @@ class UserServiceTest {
                 "PlainPassword123",
                 "John",
                 "Doe",
-                "ROLE_TEACHER"
+                "TEACHER"
         );
 
         userResponse = new UserResponse(
@@ -70,7 +70,7 @@ class UserServiceTest {
                 "test@school.com",
                 "John",
                 "Doe",
-                "ROLE_TEACHER",
+                "TEACHER",
                 true
         );
     }
