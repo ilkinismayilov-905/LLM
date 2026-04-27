@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.UserMapper;
 import com.example.dto.request.LoginRequest;
 import com.example.dto.request.RefreshTokenRequest;
 import com.example.dto.request.RegisterRequest;
@@ -37,7 +37,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    private final EntityToDtoMapper mapper;
+    private final UserMapper mapper;
     private final EmailService emailService;
     private final PasswordResetTokenService passwordResetTokenService;
     private final RefreshTokenService refreshTokenService;

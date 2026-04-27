@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.UserMapper;
 import com.example.dto.request.CreateUserRequest;
 import com.example.dto.request.UpdateUserRequest;
 import com.example.dto.response.UserResponse;
@@ -33,7 +33,7 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private EntityToDtoMapper mapper;
+    private UserMapper mapper;
 
     @Mock
     private PasswordEncoder passwordEncoder;

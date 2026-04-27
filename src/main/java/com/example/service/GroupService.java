@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.GroupMapper;
 import com.example.dto.request.CreateGroupRequest;
 import com.example.dto.request.UpdateGroupRequest;
 import com.example.dto.response.GroupResponse;
@@ -26,7 +26,7 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final SpecialtyRepository specialtyRepository;
-    private final EntityToDtoMapper mapper;
+    private final GroupMapper mapper;
 
     @Transactional(readOnly = true)
     public GroupResponse getGroupById(Long id) {

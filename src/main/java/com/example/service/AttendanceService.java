@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.AttendanceMapper;
 import com.example.dto.request.MarkAttendanceRequest;
 import com.example.dto.response.AttendanceResponse;
 import com.example.dto.response.AttendanceWarningResponse;
@@ -30,7 +30,7 @@ public class AttendanceService {
     private final TeacherRepository teacherRepository;
     private final UserRepository userRepository;
     private final TeacherGroupSubjectRepository tgsRepository;
-    private final EntityToDtoMapper mapper;
+    private final AttendanceMapper mapper;
 
     private static final int ALLOWED_ABSENT_TO_PRESENT_MINUTES = 15;
 

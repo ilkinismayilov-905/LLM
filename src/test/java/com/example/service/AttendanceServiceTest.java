@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.AttendanceMapper;
 import com.example.dto.request.MarkAttendanceRequest;
 import com.example.dto.response.AttendanceResponse;
 import com.example.dto.response.AttendanceWarningResponse;
@@ -45,7 +45,7 @@ class AttendanceServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private EntityToDtoMapper mapper;
+    private AttendanceMapper mapper;
 
     @InjectMocks
     private AttendanceService attendanceService;

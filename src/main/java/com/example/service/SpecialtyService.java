@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.SpecialtyMapper;
 import com.example.dto.request.CreateSpecialtyRequest;
 import com.example.dto.request.UpdateSpecialtyRequest;
 import com.example.dto.response.SpecialtyResponse;
@@ -22,7 +22,7 @@ import java.util.List;
 public class SpecialtyService {
 
     private final SpecialtyRepository specialtyRepository;
-    private final EntityToDtoMapper mapper;
+    private final SpecialtyMapper mapper;
 
     @Transactional(readOnly = true)
     public SpecialtyResponse getSpecialtyById(Long id) {

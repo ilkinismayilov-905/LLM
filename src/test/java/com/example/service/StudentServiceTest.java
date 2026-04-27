@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.StudentMapper;
 import com.example.dto.request.CreateStudentRequest;
 import com.example.dto.request.UpdateStudentRequest;
 import com.example.dto.response.StudentResponse;
@@ -38,7 +38,7 @@ class StudentServiceTest {
     private GroupRepository groupRepository;
 
     @Mock
-    private EntityToDtoMapper mapper;
+    private StudentMapper mapper;
 
     @InjectMocks
     private StudentService studentService;

@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.GradeMapper;
 import com.example.dto.request.CreateGradeRequest;
 import com.example.dto.request.UpdateGradeRequest;
 import com.example.dto.response.GradeResponse;
@@ -34,7 +34,7 @@ public class GradeService {
     private final StudentRepository studentRepository;
     private final SubjectRepository subjectRepository;
     private final TeacherRepository teacherRepository;
-    private final EntityToDtoMapper mapper;
+    private final GradeMapper mapper;
 
     @Transactional(readOnly = true)
     public GradeResponse getGradeById(Long id) {

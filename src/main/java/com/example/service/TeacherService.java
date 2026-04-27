@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.TeacherMapper;
 import com.example.dto.request.CreateTeacherRequest;
 import com.example.dto.request.UpdateTeacherRequest;
 import com.example.dto.response.TeacherResponse;
@@ -25,7 +25,7 @@ public class TeacherService {
 
     private final TeacherRepository teacherRepository;
     private final UserRepository userRepository;
-    private final EntityToDtoMapper mapper;
+    private final TeacherMapper mapper;
 
     @Transactional(readOnly = true)
     public TeacherResponse getTeacherById(Long id) {

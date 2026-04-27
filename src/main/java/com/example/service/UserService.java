@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.UserMapper;
 import com.example.dto.request.CreateUserRequest;
 import com.example.dto.request.UpdateUserRequest;
 import com.example.dto.response.UserResponse;
@@ -24,7 +24,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final EntityToDtoMapper mapper;
+    private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)

@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.mapper.EntityToDtoMapper;
+import com.example.dto.mapper.SubjectMapper;
 import com.example.dto.request.CreateSubjectRequest;
 import com.example.dto.request.UpdateSubjectRequest;
 import com.example.dto.response.SubjectResponse;
@@ -21,7 +21,7 @@ import java.util.List;
 public class SubjectService {
 
     private final SubjectRepository subjectRepository;
-    private final EntityToDtoMapper mapper;
+    private final SubjectMapper mapper;
 
     @Transactional(readOnly = true)
     public SubjectResponse getSubjectById(Long id) {
