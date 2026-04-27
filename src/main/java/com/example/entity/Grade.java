@@ -55,6 +55,4 @@ public class Grade {
     @Enumerated(EnumType.STRING)
     private GradeStatus status;
 
-
-
 }

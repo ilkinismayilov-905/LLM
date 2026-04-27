@@ -22,21 +22,17 @@ public class JwtTokenProvider {
     private static final String ACCESS  = "ACCESS";
     private static final String REFRESH = "REFRESH";
 
-    // ── Access token config ──────────────────────────────────────────────────
     @Value("${app.jwt.secret}")
     private String jwtSecret;
 
     @Value("${app.jwt.expiration:900000}")
     private long jwtExpirationMs;
 
-    // ── Refresh token config ─────────────────────────────────────────────────
     @Value("${app.jwt.refresh-secret}")
     private String jwtRefreshSecret;
 
     @Value("${app.jwt.refresh-expiration:604800000}")
     private long jwtRefreshExpirationMs;
-
-    // ── Token generation ─────────────────────────────────────────────────────
 
     /** Authentication obyektindən ACCESS token yarat */
     public String generateToken(Authentication authentication) {
@@ -113,8 +109,6 @@ public class JwtTokenProvider {
             return false;
         }
     }
-
-    // ── Private helpers ──────────────────────────────────────────────────────
 
     private String buildAccessToken(String email) {
         Date now = new Date();
