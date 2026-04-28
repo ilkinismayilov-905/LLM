@@ -82,6 +82,8 @@ public class AuthenticationService {
         User savedUser = userRepository.save(user);
         log.info("User registered successfully: {}", request.email());
 
+        emailService.sendRegisterConfirmationEmail(savedUser.getEmail(), savedUser.getFirstName());
+
         String accessToken = jwtTokenProvider.generateTokenFromEmail(savedUser.getEmail());
         // Store refresh token in database
         String refreshToken = refreshTokenService.createOrUpdateRefreshToken(savedUser);

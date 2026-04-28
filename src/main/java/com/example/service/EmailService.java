@@ -51,6 +51,21 @@ public class EmailService {
         }
     }
 
+    public void sendRegisterConfirmationEmail(String toEmail, String firstName) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(toEmail);
+            message.setSubject("User Registered Successfully - LMS System");
+            message.setText(buildPasswordChangeConfirmationEmailBody(firstName));
+
+            mailSender.send(message);
+            log.info("Register confirmation email sent successfully to: {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send register confirmation email to {}: {}", toEmail, e.getMessage());
+            throw new EmailSendingException("Failed to send register confirmation email: " + e.getMessage(), e);
+        }
+    }
+
     private String buildPasswordResetEmailBody(String resetLink, String resetToken) {
         return String.format(
                 "Salam,\n\n" +
