@@ -3,11 +3,13 @@ package com.example.controller;
 import com.example.dto.request.CreateGradeRequest;
 import com.example.dto.request.UpdateGradeRequest;
 import com.example.dto.response.GradeResponse;
+import com.example.security.UserDetailsImpl;
 import com.example.service.GradeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,6 +55,12 @@ public class GradeController {
     public ResponseEntity<Void> deleteGrade(@PathVariable Long id) {
         gradeService.deleteGrade(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/student/me")
+    public ResponseEntity<List<GradeResponse>> getGradesByStudentMe(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return ResponseEntity.ok(gradeService.getGradesByStudentId(userDetails.getId()));
     }
 }
 

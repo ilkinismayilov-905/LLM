@@ -3,11 +3,13 @@ package com.example.controller;
 import com.example.dto.request.CreateStudentRequest;
 import com.example.dto.request.UpdateStudentRequest;
 import com.example.dto.response.StudentResponse;
+import com.example.security.UserDetailsImpl;
 import com.example.service.StudentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,6 +55,12 @@ public class StudentController {
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<StudentResponse> getStudentMe(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return ResponseEntity.ok(studentService.getStudentById(userDetails.getId()));
     }
 }
 

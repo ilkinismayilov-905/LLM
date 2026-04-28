@@ -11,9 +11,9 @@ public record AttendanceResponse(
     Long lessonId,
     StudentResponse student,
     String status,
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     LocalDateTime markedAt,
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     LocalDateTime lastModifiedAt,
     String remarks
 ) {

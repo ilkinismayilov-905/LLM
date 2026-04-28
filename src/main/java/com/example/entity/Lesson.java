@@ -37,15 +37,15 @@ public class Lesson {
     }
 
     public boolean hasLessonStarted(LocalDateTime currentTime) {
-        return currentTime.isAfter(startTime);
+        return !currentTime.isBefore(startTime);
     }
 
     public boolean isWithinFirstFifteenMinutes(LocalDateTime currentTime) {
-        return currentTime.isAfter(startTime) && currentTime.isBefore(startTime.plusMinutes(15));
+        return !currentTime.isBefore(startTime) && !currentTime.isAfter(startTime.plusMinutes(15));
     }
 
     public boolean hasLessonEnded(LocalDateTime currentTime) {
-        return currentTime.isAfter(endTime);
+        return !currentTime.isBefore(endTime);
     }
 }
 

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -62,7 +63,9 @@ public class AttendanceService {
         Teacher teacher = getAuthenticatedTeacher();
         validateTeacherAssignment(teacher, lesson.getTeacherGroupSubject());
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Baku"));
+        log.info("Current Time: {}, Lesson Start Time: {}", now, lesson.getStartTime());
+        System.out.println("Current time in Asia/Baku: " + now);
 
         // Check lesson timing constraints
         if (lesson.hasLessonEnded(now)) {
