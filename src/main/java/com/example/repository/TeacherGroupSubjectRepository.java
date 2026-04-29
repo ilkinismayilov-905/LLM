@@ -16,6 +16,7 @@ public interface TeacherGroupSubjectRepository extends JpaRepository<TeacherGrou
 
     TeacherGroupSubject findByTeacherIdAndGroupIdAndSubjectId(Long teacherId, Long groupId, Long subjectId);
 
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"group", "subject"})
     List<TeacherGroupSubject> findAllByTeacherId(Long teacherId);
 
     /**
