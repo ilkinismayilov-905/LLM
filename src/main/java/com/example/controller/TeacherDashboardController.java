@@ -31,7 +31,6 @@ public class TeacherDashboardController {
      * @return TeacherDashboardResponse with dashboard data
      */
     @GetMapping
-    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<TeacherDashboardResponse> getTeacherDashboard(Authentication authentication) {
         log.info("GET /api/v1/teacher/dashboard endpoint called");
 

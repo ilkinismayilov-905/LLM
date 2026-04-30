@@ -86,6 +86,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/grades/**").hasAnyRole("SUPER_ADMIN", "TEACHER")
                         .requestMatchers("/api/v1/teacher-group-subjects/**").hasAnyRole("SUPER_ADMIN", "TEACHER")
                         .requestMatchers("/api/dashboard/student/**").hasRole("STUDENT")
+                        .requestMatchers("/api/v1/teacher/dashboard/**").hasRole("TEACHER")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
