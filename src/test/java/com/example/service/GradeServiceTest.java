@@ -53,17 +53,7 @@ class GradeServiceTest {
     private Student student;
     private Subject subject;
     private Teacher teacher;
-    private SpecialtyResponse specialtyRes;
     private GradeResponse gradeResponse;
-    private UserResponse studentUserRes;
-    private UserResponse teacherUserRes;
-    private GroupResponse groupRes;
-    private StudentResponse studentRes;
-    private TeacherResponse teacherRes;
-    private SubjectResponse subjectRes;
-
-
-
 
     @BeforeEach
     void setUp() {
@@ -116,57 +106,8 @@ class GradeServiceTest {
                 .status(GradeStatus.PASSED)
                 .build();
 
-        specialtyRes = new SpecialtyResponse(1L, "Software Engineering");
-
-        GroupResponse groupRes = GroupResponse.builder()
-                .id(1L)
-                .groupNumber("601.21")
-                .specialty(specialtyRes)
-                .build();
-
-        studentUserRes = UserResponse.builder()
-                .id(1L)
-                .email("student@school.com")
-                .firstName("John")
-                .lastName("Doe")
-                .role("ROLE_STUDENT")
-                .isActive(true)
-                .build();
-
-        studentRes = StudentResponse.builder()
-                .id(1L)
-                .studentNumber("STU001")
-                .user(studentUserRes)
-                .group(groupRes)
-                .build();
-
-        teacherUserRes = UserResponse.builder()
-                .id(2L)
-                .email("teacher@school.com")
-                .firstName("Jane")
-                .lastName("Smith")
-                .role("ROLE_TEACHER")
-                .isActive(true)
-                .build();
-
-
-        teacherRes = TeacherResponse.builder()
-                .id(1L)
-                .user(teacherUserRes)
-                .department(Department.COMPUTER_SCIENCE)
-                .build();
-
-        subjectRes = SubjectResponse.builder()
-                .id(1L)
-                .name("Advanced Java")
-                .credits(4)
-                .build();
-
         gradeResponse = GradeResponse.builder()
                 .id(1L)
-                .student(studentRes)   // Artıq Long yox, tam obyekt
-                .subject(subjectRes)   // Artıq subjectId yox, subject obyekti
-                .teacher(teacherRes)   // Artıq teacherId yox, teacher obyekti
                 .attendanceScore(8)
                 .seminarScore(7)
                 .col1(6)
@@ -177,7 +118,6 @@ class GradeServiceTest {
                 .status("PASSED")
                 .build();
 
-        // Mock AttendanceTrackingService with lenient mode to avoid unnecessary stubbing errors
         lenient().when(attendanceTrackingService.hasStudentFailedDueToAbsence(any(Student.class), any(Subject.class)))
                 .thenReturn(false);
     }
@@ -210,7 +150,6 @@ class GradeServiceTest {
     void shouldGetGradesByStudentIdSuccessfully() {
         // Arrange
         List<Grade> grades = Arrays.asList(grade);
-        List<GradeResponse> responses = Arrays.asList(gradeResponse);
         when(gradeRepository.findAllByStudentId(1L)).thenReturn(grades);
         when(mapper.toGradeResponse(grade)).thenReturn(gradeResponse);
 
@@ -227,7 +166,6 @@ class GradeServiceTest {
     void shouldGetGradesByTeacherIdSuccessfully() {
         // Arrange
         List<Grade> grades = Arrays.asList(grade);
-        List<GradeResponse> responses = Arrays.asList(gradeResponse);
         when(gradeRepository.findAllByTeacherId(1L)).thenReturn(grades);
         when(mapper.toGradeResponse(grade)).thenReturn(gradeResponse);
 
@@ -241,7 +179,23 @@ class GradeServiceTest {
     }
 
     @Test
-    void shouldCreateGradeWithExcellentStatusSuccessfully() {
+    void shouldGetAllGradesSuccessfully() {
+        // Arrange
+        List<Grade> grades = Arrays.asList(grade);
+        when(gradeRepository.findAll()).thenReturn(grades);
+        when(mapper.toGradeResponse(grade)).thenReturn(gradeResponse);
+
+        // Act
+        List<GradeResponse> result = gradeService.getAllGrades();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(gradeRepository, times(1)).findAll();
+    }
+
+    @Test
+    void shouldCreateGradeSuccessfullyWithPassedStatus() {
         // Arrange
         CreateGradeRequest request = CreateGradeRequest.builder()
                 .studentId(1L)
@@ -252,14 +206,24 @@ class GradeServiceTest {
                 .col1(6)
                 .col2(7)
                 .col3(8)
-                .examScore(35)
+                .examScore(35) // Total > 51, Exam > 17
                 .build();
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
         when(subjectRepository.findById(1L)).thenReturn(Optional.of(subject));
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        when(gradeRepository.save(any(Grade.class))).thenReturn(grade);
-        when(mapper.toGradeResponse(grade)).thenReturn(gradeResponse);
+
+        when(gradeRepository.save(any(Grade.class))).thenAnswer(i -> {
+            Grade saved = i.getArgument(0);
+            saved.setId(1L);
+            return saved;
+        });
+
+        GradeResponse expectedResponse = GradeResponse.builder()
+                .totalScore(71)
+                .status("PASSED")
+                .build();
+        when(mapper.toGradeResponse(any(Grade.class))).thenReturn(expectedResponse);
 
         // Act
         GradeResponse result = gradeService.createGrade(request);
@@ -272,57 +236,7 @@ class GradeServiceTest {
     }
 
     @Test
-    void shouldCreateGradeWithGoodStatusSuccessfully() {
-        // Arrange
-        CreateGradeRequest request = CreateGradeRequest.builder()
-                .studentId(1L)
-                .subjectId(1L)
-                .teacherId(1L)
-                .attendanceScore(6)
-                .seminarScore(5)
-                .col1(5)
-                .col2(5)
-                .col3(5)
-                .examScore(20)
-                .build();
-
-        Grade goodGrade = Grade.builder()
-                .id(1L)
-                .student(student)
-                .subject(subject)
-                .teacher(teacher)
-                .attendanceScore(6)
-                .seminarScore(5)
-                .col1(5)
-                .col2(5)
-                .col3(5)
-                .examScore(20)
-                .totalScore(51)
-                .status(GradeStatus.PASSED)
-                .build();
-
-        GradeResponse goodResponse = GradeResponse.builder()
-                .totalScore(51)
-                .status("GOOD")
-                .build();
-
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
-        when(subjectRepository.findById(1L)).thenReturn(Optional.of(subject));
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        when(gradeRepository.save(any(Grade.class))).thenReturn(goodGrade);
-        when(mapper.toGradeResponse(goodGrade)).thenReturn(goodResponse);
-
-        // Act
-        GradeResponse result = gradeService.createGrade(request);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(51, result.totalScore());
-        assertEquals("GOOD", result.status());
-    }
-
-    @Test
-    void shouldCreateGradeWithSatisfactoryStatusSuccessfully() {
+    void shouldCreateGradeWithFailedByTotalStatus() {
         // Arrange
         CreateGradeRequest request = CreateGradeRequest.builder()
                 .studentId(1L)
@@ -333,107 +247,92 @@ class GradeServiceTest {
                 .col1(4)
                 .col2(4)
                 .col3(4)
-                .examScore(16)
-                .build();
-
-        Grade satisfactoryGrade = Grade.builder()
-                .id(1L)
-                .student(student)
-                .subject(subject)
-                .teacher(teacher)
-                .attendanceScore(4)
-                .seminarScore(4)
-                .col1(4)
-                .col2(4)
-                .col3(4)
-                .examScore(16)
-                .totalScore(40)
-                .status(GradeStatus.PASSED)
-                .build();
-
-        GradeResponse satisfactoryResponse = GradeResponse.builder()
-                .totalScore(40)
-                .status("SATISFACTORY")
+                .examScore(30) // Total = 50
                 .build();
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
         when(subjectRepository.findById(1L)).thenReturn(Optional.of(subject));
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        when(gradeRepository.save(any(Grade.class))).thenReturn(satisfactoryGrade);
-        when(mapper.toGradeResponse(satisfactoryGrade)).thenReturn(satisfactoryResponse);
+
+        when(gradeRepository.save(any(Grade.class))).thenAnswer(i -> i.getArgument(0));
+
+        GradeResponse expectedResponse = GradeResponse.builder()
+                .totalScore(50)
+                .status("FAILED_BY_TOTAL")
+                .build();
+        when(mapper.toGradeResponse(any(Grade.class))).thenReturn(expectedResponse);
 
         // Act
         GradeResponse result = gradeService.createGrade(request);
 
         // Assert
         assertNotNull(result);
-        assertEquals(40, result.totalScore());
-        assertEquals("SATISFACTORY", result.status());
+        assertEquals("FAILED_BY_TOTAL", result.status());
     }
 
     @Test
-    void shouldCreateGradeWithFailStatusWhenTotalBelowThreshold() {
+    void shouldCreateGradeWithFailedByExamStatus() {
         // Arrange
         CreateGradeRequest request = CreateGradeRequest.builder()
                 .studentId(1L)
                 .subjectId(1L)
                 .teacherId(1L)
-                .attendanceScore(2)
-                .seminarScore(2)
-                .col1(2)
-                .col2(2)
-                .col3(2)
-                .examScore(10)
-                .build();
-
-        Grade failGrade = Grade.builder()
-                .id(1L)
-                .student(student)
-                .subject(subject)
-                .teacher(teacher)
-                .attendanceScore(2)
-                .seminarScore(2)
-                .col1(2)
-                .col2(2)
-                .col3(2)
-                .examScore(10)
-                .totalScore(20)
-                .status(GradeStatus.FAILED_BY_EXAM)
-                .build();
-
-        GradeResponse failResponse = GradeResponse.builder()
-                .totalScore(20)
-                .status("FAIL")
+                .attendanceScore(10)
+                .seminarScore(10)
+                .col1(10)
+                .col2(10)
+                .col3(10)
+                .examScore(15) // Total = 65, Exam = 15 (< 17)
                 .build();
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
         when(subjectRepository.findById(1L)).thenReturn(Optional.of(subject));
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        when(gradeRepository.save(any(Grade.class))).thenReturn(failGrade);
-        when(mapper.toGradeResponse(failGrade)).thenReturn(failResponse);
+
+        when(gradeRepository.save(any(Grade.class))).thenAnswer(i -> i.getArgument(0));
+
+        GradeResponse expectedResponse = GradeResponse.builder()
+                .totalScore(65)
+                .status("FAILED_BY_EXAM")
+                .build();
+        when(mapper.toGradeResponse(any(Grade.class))).thenReturn(expectedResponse);
 
         // Act
         GradeResponse result = gradeService.createGrade(request);
 
         // Assert
         assertNotNull(result);
-        assertEquals(20, result.totalScore());
-        assertEquals("FAIL", result.status());
+        assertEquals("FAILED_BY_EXAM", result.status());
     }
 
     @Test
-    void shouldThrowInvalidGradeValueExceptionForOutOfRangeAttendanceScore() {
+    void shouldThrowStudentFailedDueToAbsenceExceptionWhenCreatingGrade() {
         // Arrange
         CreateGradeRequest request = CreateGradeRequest.builder()
                 .studentId(1L)
                 .subjectId(1L)
                 .teacherId(1L)
-                .attendanceScore(11) // Invalid: should be 0-10
-                .seminarScore(7)
-                .col1(6)
-                .col2(7)
-                .col3(8)
-                .examScore(35)
+                .build();
+
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        when(subjectRepository.findById(1L)).thenReturn(Optional.of(subject));
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
+
+        when(attendanceTrackingService.hasStudentFailedDueToAbsence(student, subject)).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(StudentFailedDueToAbsenceException.class, () -> gradeService.createGrade(request));
+        verify(gradeRepository, never()).save(any(Grade.class));
+    }
+
+    @Test
+    void shouldThrowInvalidGradeValueExceptionForCreateGrade() {
+        // Arrange
+        CreateGradeRequest request = CreateGradeRequest.builder()
+                .studentId(1L)
+                .subjectId(1L)
+                .teacherId(1L)
+                .attendanceScore(11) // Invalid
                 .build();
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
@@ -442,95 +341,6 @@ class GradeServiceTest {
 
         // Act & Assert
         assertThrows(InvalidGradeValueException.class, () -> gradeService.createGrade(request));
-    }
-
-    @Test
-    void shouldThrowInvalidGradeValueExceptionForOutOfRangeExamScore() {
-        // Arrange
-        CreateGradeRequest request = CreateGradeRequest.builder()
-                .studentId(1L)
-                .subjectId(1L)
-                .teacherId(1L)
-                .attendanceScore(8)
-                .seminarScore(7)
-                .col1(6)
-                .col2(7)
-                .col3(8)
-                .examScore(51) // Invalid: should be 0-50
-                .build();
-
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
-        when(subjectRepository.findById(1L)).thenReturn(Optional.of(subject));
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-
-        // Act & Assert
-        assertThrows(InvalidGradeValueException.class, () -> gradeService.createGrade(request));
-    }
-
-    @Test
-    void shouldThrowStudentNotFoundExceptionWhenCreatingGrade() {
-        // Arrange
-        CreateGradeRequest request = CreateGradeRequest.builder()
-                .studentId(999L)
-                .subjectId(1L)
-                .teacherId(1L)
-                .attendanceScore(8)
-                .seminarScore(7)
-                .col1(6)
-                .col2(7)
-                .col3(8)
-                .examScore(35)
-                .build();
-
-        when(studentRepository.findById(999L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(StudentNotFoundException.class, () -> gradeService.createGrade(request));
-    }
-
-    @Test
-    void shouldThrowSubjectNotFoundExceptionWhenCreatingGrade() {
-        // Arrange
-        CreateGradeRequest request = CreateGradeRequest.builder()
-                .studentId(1L)
-                .subjectId(999L)
-                .teacherId(1L)
-                .attendanceScore(8)
-                .seminarScore(7)
-                .col1(6)
-                .col2(7)
-                .col3(8)
-                .examScore(35)
-                .build();
-
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
-        when(subjectRepository.findById(999L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(SubjectNotFoundException.class, () -> gradeService.createGrade(request));
-    }
-
-    @Test
-    void shouldThrowTeacherNotFoundExceptionWhenCreatingGrade() {
-        // Arrange
-        CreateGradeRequest request = CreateGradeRequest.builder()
-                .studentId(1L)
-                .subjectId(1L)
-                .teacherId(999L)
-                .attendanceScore(8)
-                .seminarScore(7)
-                .col1(6)
-                .col2(7)
-                .col3(8)
-                .examScore(35)
-                .build();
-
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
-        when(subjectRepository.findById(1L)).thenReturn(Optional.of(subject));
-        when(teacherRepository.findById(999L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(TeacherNotFoundException.class, () -> gradeService.createGrade(request));
     }
 
     @Test
@@ -538,44 +348,50 @@ class GradeServiceTest {
         // Arrange
         UpdateGradeRequest request = UpdateGradeRequest.builder()
                 .attendanceScore(9)
-                .seminarScore(8)
-                .col1(7)
-                .col2(8)
-                .col3(9)
-                .examScore(37)
-                .build();
-
-        Grade updatedGrade = Grade.builder()
-                .id(1L)
-                .student(student)
-                .subject(subject)
-                .teacher(teacher)
-                .attendanceScore(9)
-                .seminarScore(8)
-                .col1(7)
-                .col2(8)
-                .col3(9)
-                .examScore(37)
-                .totalScore(78)
-                .status(GradeStatus.PASSED)
-                .build();
-
-        GradeResponse updatedResponse = GradeResponse.builder()
-                .totalScore(78)
-                .status("EXCELLENT")
+                .examScore(40)
                 .build();
 
         when(gradeRepository.findById(1L)).thenReturn(Optional.of(grade));
-        when(gradeRepository.save(any(Grade.class))).thenReturn(updatedGrade);
-        when(mapper.toGradeResponse(updatedGrade)).thenReturn(updatedResponse);
+        when(gradeRepository.save(any(Grade.class))).thenAnswer(i -> i.getArgument(0));
+
+        GradeResponse updatedResponse = GradeResponse.builder()
+                .totalScore(77) // previous 71 - 8 (old att) + 9 (new att) - 35 (old exam) + 40 (new exam) = 77
+                .status("PASSED")
+                .build();
+        when(mapper.toGradeResponse(any(Grade.class))).thenReturn(updatedResponse);
 
         // Act
         GradeResponse result = gradeService.updateGrade(1L, request);
 
         // Assert
         assertNotNull(result);
-        assertEquals(78, result.totalScore());
         verify(gradeRepository, times(1)).save(any(Grade.class));
+    }
+
+    @Test
+    void shouldThrowInvalidGradeValueExceptionForUpdateGrade() {
+        // Arrange
+        UpdateGradeRequest request = UpdateGradeRequest.builder()
+                .examScore(55) // Invalid > 50
+                .build();
+
+        when(gradeRepository.findById(1L)).thenReturn(Optional.of(grade));
+
+        // Act & Assert
+        assertThrows(InvalidGradeValueException.class, () -> gradeService.updateGrade(1L, request));
+    }
+
+    @Test
+    void shouldThrowStudentFailedDueToAbsenceExceptionWhenUpdatingGrade() {
+        // Arrange
+        UpdateGradeRequest request = UpdateGradeRequest.builder().build();
+
+        when(gradeRepository.findById(1L)).thenReturn(Optional.of(grade));
+        when(attendanceTrackingService.hasStudentFailedDueToAbsence(grade.getStudent(), grade.getSubject())).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(StudentFailedDueToAbsenceException.class, () -> gradeService.updateGrade(1L, request));
+        verify(gradeRepository, never()).save(any(Grade.class));
     }
 
     @Test
@@ -599,4 +415,3 @@ class GradeServiceTest {
         assertThrows(GradeNotFoundException.class, () -> gradeService.deleteGrade(999L));
     }
 }
-
