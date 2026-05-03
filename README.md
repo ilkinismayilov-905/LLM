@@ -121,3 +121,8 @@ Subject ←── Grade ──→ Student + Teacher
 ## Github Repository
 
 - [Manageable-Uni Backend](https://github.com/ilkinismayilov-905/UMS)
+
+
+##Trello Board
+
+- [Manageable Uni Trello Board](https://trello.com/invite/b/69f77f6d8ccec167a5b23b53/ATTI34406a547c35788e95c006ac13f9cb412718C2BB/manageable-university)

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -124,7 +125,10 @@ public class GlobalExceptionHandler {
     /**
      * Handle 401 Unauthorized exceptions
      */
-    @ExceptionHandler(InvalidTokenException.class)
+    @ExceptionHandler({
+            InvalidTokenException.class,
+            BadCredentialsException.class
+    })
     public ResponseEntity<ErrorResponse> handleUnauthorized(
             InvalidTokenException ex,
             HttpServletRequest request) {
